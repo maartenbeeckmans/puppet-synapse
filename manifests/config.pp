@@ -6,6 +6,7 @@
 #   include synapse::config
 class synapse::config(
   String  $server_name          = $synapse::server_name,
+  String  $web_client_location  = $synapse::web_client_location,
   Integer $listen_port          = $synapse::listen_port,
   String  $listen_address       = $synapse::listen_address,
   String  $database_name        = $synapse::database_name,
@@ -66,10 +67,12 @@ class synapse::config(
     notify  => Service[$synapse::service_name]
   }
 
-  concat::fragment { 'synapse-homeserver-config':
-    target  => "${synapse::conf_dir}/homeserver.yaml",
-    content => hash2yaml($additional_config),
-    order   => '01'
+  if $additional_config != {} {
+    concat::fragment { 'synapse-homeserver-config':
+      target  => "${synapse::conf_dir}/homeserver.yaml",
+      content => hash2yaml($additional_config),
+      order   => '01'
+    }
   }
 
   concat::fragment { 'synapse-homeserver':
